@@ -1,98 +1,103 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+## **Setup**
+- **Prerequisites:** Node.js 18+ (or 20+), pnpm 9+, PostgreSQL 14+ (local or Docker).
+- **Install:** Run `pnpm install` to install dependencies.
+- **Configure env:** Create a `.env` file at the project root with `DATABASE_URL`.
+- **Migrate DB:** Apply Prisma migrations and generate client.
+- **Run:** Start the NestJS server in watch mode.
+- **Test:** Run unit and e2e tests.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+### **1. Prerequisites**
+- **Node.js:** Install from https://nodejs.org (LTS recommended). Verify with:
 
 ```bash
-$ pnpm install
+node -v
+pnpm -v
 ```
 
-## Compile and run the project
+- **pnpm:** Install globally if missing:
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+npm i -g pnpm@latest
 ```
 
-## Run tests
+- **PostgreSQL:** You can use a local install or Docker. Example Docker command:
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+docker run --name wallet-postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=wallet_db -p 5432:5432 -d postgres:16
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### **2. Install dependencies**
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### **3. Environment variables**
+Create a file named `.env` in the project root with your PostgreSQL connection string. Examples:
 
-## Resources
+- Local PostgreSQL:
 
-Check out a few resources that may come in handy when working with NestJS:
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/wallet_db?schema=public"
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Docker container (as created above):
 
-## Support
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/wallet_db?schema=public"
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### **4. Database setup**
+Apply migrations and generate the Prisma client:
 
-## Stay in touch
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Optional: open Prisma Studio to inspect data:
 
-## License
+```bash
+pnpm studio
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### **5. Run the server**
+Start the NestJS app in watch mode:
+
+```bash
+pnpm start:dev
+```
+
+The app starts on http://localhost:3000 by default.
+
+### **6. Testing & linting**
+- Unit tests:
+
+```bash
+pnpm test
+```
+
+- E2E tests:
+
+```bash
+pnpm test:e2e
+```
+
+- Lint & format:
+
+```bash
+pnpm lint
+pnpm format
+```
+
+### **Troubleshooting**
+- If migrations fail, ensure the database is reachable and the `DATABASE_URL` is correct.
+- If Nest fails to start, verify Node and pnpm versions and reinstall with `pnpm install`.
+- On Windows, if Docker port 5432 is in use, stop other Postgres services or change the published port.
+
+
+# Assumptions
+- There is an external micro-service/API that handles the wallet registry on a fina
+ncial platform (e.g banking service and payment gateway)
+- Users have completed all authentication and authorization processes needed for wallet operations.
+- The database is used for the application's state and does not represent any wallet registry.
