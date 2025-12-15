@@ -93,6 +93,7 @@ export class WalletService {
   async createWallet() {
     // Default values are set in the database schema
     const wallet = await prisma.wallet.create({ data: {} });
+
     return httpResponse({
       data: new WalletResource(wallet).toJson(),
       message: "Wallet created successfully",
