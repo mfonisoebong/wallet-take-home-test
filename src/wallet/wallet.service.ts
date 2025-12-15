@@ -18,78 +18,8 @@ import {
 
 @Injectable()
 export class WalletService {
-  private hashRequest(payload: any) {
-    const json = JSON.stringify(payload ?? {});
-    return crypto.createHash("sha256").update(json).digest("hex");
-  }
-
   // Handles idempotent operations
 
-  private async withIdempotency<T>(
-    idempotencyKey: string | undefined,
-    operation: string,
-    requestData: any,
-    executor: (tx: any) => Promise<HttpResponse<T>>,
-  ) {
-    // Always run inside a DB transaction for consistency
-    if (!idempotencyKey) {
-      return prisma.$transaction(async (tx) => executor(tx));
-    }
-
-    const requestHash = this.hashRequest({ operation, requestData });
-
-    return prisma.$transaction(async (tx: any) => {
-      // Try to create an idempotency record; if it exists, decide what to return
-      let created = false;
-      try {
-        await tx.idempotency.create({
-          data: {
-            key: idempotencyKey,
-            operation,
-            requestHash,
-            status: "PENDING",
-          },
-        });
-        created = true;
-      } catch (e) {
-        // Duplicate or other error; fetch existing
-        const existing = await tx.idempotency.findUnique({
-          where: { key: idempotencyKey },
-        });
-        if (existing) {
-          if (
-            existing.operation !== operation ||
-            existing.requestHash !== requestHash
-          ) {
-            return httpResponse({
-              code: STATUS_CODE.CONFLICT,
-              message: "Idempotency key reused with different request",
-            });
-          }
-          if (existing.status === "COMPLETED" && existing.response) {
-            return existing.response as import("@/lib/utils").HttpResponse<T>;
-          }
-          return httpResponse({
-            code: STATUS_CODE.CONFLICT,
-            message: "Operation with this idempotency key is in progress",
-          });
-        }
-        // If no existing, rethrow
-        throw e;
-      }
-
-      const response = await executor(tx);
-
-      if (created) {
-        await tx.idempotency.update({
-          where: { key: idempotencyKey },
-          data: { status: "COMPLETED", response },
-        });
-      }
-
-      return response;
-    });
-  }
   async createWallet() {
     // Default values are set in the database schema
     const wallet = await prisma.wallet.create({ data: {} });
@@ -244,6 +174,77 @@ export class WalletService {
   private async checkWallet(walletId: string) {
     return await prisma.wallet.findUnique({
       where: { id: walletId },
+    });
+  }
+
+  private hashRequest(payload: any) {
+    const json = JSON.stringify(payload ?? {});
+    return crypto.createHash("sha256").update(json).digest("hex");
+  }
+
+  private async withIdempotency<T>(
+    idempotencyKey: string | undefined,
+    operation: string,
+    requestData: any,
+    executor: (tx: any) => Promise<HttpResponse<T>>,
+  ) {
+    // Always run inside a DB transaction for consistency
+    if (!idempotencyKey) {
+      return prisma.$transaction(async (tx) => executor(tx));
+    }
+
+    const requestHash = this.hashRequest({ operation, requestData });
+
+    return prisma.$transaction(async (tx: any) => {
+      // Try to create an idempotency record; if it exists, decide what to return
+      let created = false;
+      try {
+        await tx.idempotency.create({
+          data: {
+            key: idempotencyKey,
+            operation,
+            requestHash,
+            status: "PENDING",
+          },
+        });
+        created = true;
+      } catch (e) {
+        // Duplicate or other error; fetch existing
+        const existing = await tx.idempotency.findUnique({
+          where: { key: idempotencyKey },
+        });
+        if (existing) {
+          if (
+            existing.operation !== operation ||
+            existing.requestHash !== requestHash
+          ) {
+            return httpResponse({
+              code: STATUS_CODE.CONFLICT,
+              message: "Idempotency key reused with different request",
+            });
+          }
+          if (existing.status === "COMPLETED" && existing.response) {
+            return existing.response as import("@/lib/utils").HttpResponse<T>;
+          }
+          return httpResponse({
+            code: STATUS_CODE.CONFLICT,
+            message: "Operation with this idempotency key is in progress",
+          });
+        }
+        // If no existing, rethrow
+        throw e;
+      }
+
+      const response = await executor(tx);
+
+      if (created) {
+        await tx.idempotency.update({
+          where: { key: idempotencyKey },
+          data: { status: "COMPLETED", response },
+        });
+      }
+
+      return response;
     });
   }
 }
