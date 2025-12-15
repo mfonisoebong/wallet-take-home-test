@@ -23,6 +23,7 @@ model Transaction {
   metadata  Json?
   type      TransactionType
   wallet    Wallet          @relation(fields: [walletId], references: [id])
+  reference String?         @unique
 }
 
 enum Currency {
@@ -32,4 +33,19 @@ enum Currency {
 enum TransactionType {
   DEPOSIT
   WITHDRAWAL
+}
+
+model Idempotency {
+  key         String            @id
+  operation   String
+  requestHash String
+  status      IdempotencyStatus @default(PENDING)
+  response    Json?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+enum IdempotencyStatus {
+  PENDING
+  COMPLETED
 }

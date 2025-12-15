@@ -90,6 +90,29 @@ pnpm lint
 pnpm format
 ```
 
+### **Idempotency for fund/transfer**
+- Both `POST /wallet/fund` and `POST /wallet/transfer` support idempotency via the `Idempotency-Key` request header.
+- Repeated calls with the same `Idempotency-Key` and identical payload return the cached response; different payloads with the same key return `409`.
+
+Setup steps (after pulling these changes):
+
+```bash
+# Ensure DATABASE_URL is set and DB is reachable
+npx prisma migrate dev --name add_idempotency_model
+npx prisma generate
+```
+
+Usage example:
+
+```bash
+curl -X POST http://localhost:3000/wallet/fund \
+  -H 'Content-Type: application/json' \
+  -H 'Idempotency-Key: 8b3a1c2d-7e5f-4f7a-9c2a-1f2e3d4c5b6a' \
+  -d '{"walletId":"<WALLET_ID>","amount":50}'
+
+# Retrying the same request with the same key returns the same response
+```
+
 ### **Troubleshooting**
 - If migrations fail, ensure the database is reachable and the `DATABASE_URL` is correct.
 - If Nest fails to start, verify Node and pnpm versions and reinstall with `pnpm install`.

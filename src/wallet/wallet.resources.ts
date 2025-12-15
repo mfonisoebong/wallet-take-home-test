@@ -1,5 +1,8 @@
+// Resources for Wallet and Transaction entities
+
 import { JsonValue } from "@prisma/client/runtime/client";
-import { $Enums, Prisma } from "../../generated/prisma/client";
+import { $Enums, Prisma } from "generated/prisma/client";
+import { currencyFormatter } from "@/lib/utils";
 import { ResourceInterface } from "../common/interfaces/resource";
 
 export type WalletResourceType = {
@@ -15,6 +18,7 @@ export type TransactionResourceType = {
   type: $Enums.TransactionType;
   walletId: string;
   createdAt: Date;
+  reference: string | null;
   metadata?: JsonValue;
 };
 
@@ -38,10 +42,10 @@ export class WalletResource implements ResourceInterface<WalletResourceType> {
         id: this.item.id,
         currency: this.item.currency,
         balance: this.item.balance,
-        balanceFormatted: new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: this.item.currency,
-        }).format(this.item.balance),
+        balanceFormatted: currencyFormatter(
+          this.item.balance,
+          this.item.currency,
+        ),
       };
     }
 
@@ -49,10 +53,7 @@ export class WalletResource implements ResourceInterface<WalletResourceType> {
       id: data.id,
       currency: data.currency,
       balance: data.balance,
-      balanceFormatted: new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: data.currency,
-      }).format(data.balance),
+      balanceFormatted: currencyFormatter(data.balance, data.currency),
     };
   }
 }
@@ -79,6 +80,7 @@ export class TransactionResource
         type: this.item.type,
         walletId: this.item.walletId,
         createdAt: this.item.createdAt,
+        reference: this.item.reference,
         metadata: this.item.metadata,
       };
     }
@@ -89,6 +91,7 @@ export class TransactionResource
       walletId: data.walletId,
       createdAt: data.createdAt,
       metadata: data.metadata,
+      reference: data.reference,
     };
   }
 }
