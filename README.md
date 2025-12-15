@@ -101,3 +101,26 @@ pnpm format
 ncial platform (e.g banking service and payment gateway)
 - Users have completed all authentication and authorization processes needed for wallet operations.
 - The database is used for the application's state and does not represent any wallet registry.
+
+# How would the system scale in production
+
+To make sure that the system scales properly in production, use the following strategies:
+
+1. **Load Balancing:**
+  - Deploying load balancing technology will ensure that incoming network traffic is evenly distributed among the available application instances, resulting in higher uptime and faster response times.
+
+2. **Database Optimization:**
+  - Implement caching stategies using services like Redis to prevent redundant database queries
+
+3. **Horizontal Scaling:**
+  - Add more instances of the application server when demain increases
+
+4. **Asynchronous Processing:**
+  - Utilize message queues (e.g., RabbitMQ, Kafka) for handling background tasks and processing workloads asynchronously.
+
+5. **Monitoring and Auto-scaling:**
+  - Implement monitoring tools to track performance metrics and set up auto-scaling policies to adjust resources based on traffic patterns.
+
+6. **API Rate Limiting:**
+  - Rate limiting would be implemented to prevent abuse of the API endpoints
+
