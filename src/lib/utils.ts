@@ -8,7 +8,7 @@ type HttpResponseParams = {
 };
 
 export type HttpResponse<T = any> = {
-  code: STATUS_CODE;
+  statusCode: STATUS_CODE;
   data: T;
   message: string;
 };
@@ -19,7 +19,7 @@ export const httpResponse = ({
   message = "Request made",
 }: HttpResponseParams): HttpResponse => {
   return {
-    code,
+    statusCode: code,
     data,
     message,
   };
