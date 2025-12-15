@@ -51,7 +51,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/wallet_db?schema=pub
 Apply migrations and generate the Prisma client:
 
 ```bash
-npx prisma migrate dev --name init
+npx prisma migrate dev
 npx prisma generate
 ```
 
